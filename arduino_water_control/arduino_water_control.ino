@@ -21,16 +21,63 @@
 */
 
 
+int analogPin = 3;     // potentiometer wiper (middle terminal) connected to analog pin 3
+int dPinRele = 3;
+int val = 0;           // variable to store the value read
+int c1 = 0 ;
+int c2 = 0;
+int limitUp = 600;
+int limitDown = 450;
+int subCount = 100;
+
 // the setup function runs once when you press reset or power the board
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(dPinRele, OUTPUT);
+  digitalWrite(dPinRele, HIGH); 
+  Serial.begin(9600);          //  setup serial
+  
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(1000);                       // wait for a second
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  delay(1000);                       // wait for a second
+  //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  //delay(1000);                       // wait for a second
+  //digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+  //delay(1000);                       // wait for a second
+  delay(500); 
+  val = analogRead(analogPin);    // read the input pin
+  if (val > limitUp) {
+    c1++;
+  } else {
+    c1 = 0;
+  }
+
+  if (c1 > subCount) {
+    digitalWrite(dPinRele, LOW);
+  }
+
+
+  if (val < limitDown) {
+    c2++;
+  } else {
+    c2 = 0;
+  }
+
+  if (c2 > subCount) {
+    digitalWrite(dPinRele, HIGH);
+  }
+    
+  Serial.print(val);             // debug value
+  Serial.print(" - c1:");
+  Serial.print (c1);
+  Serial.print(" - c2:");
+  Serial.println (c2);
 }
+
+
+//700 > seco
+
+// 400 < humido
+
