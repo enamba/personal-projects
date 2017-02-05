@@ -1,0 +1,192 @@
+aws lambda create-function \
+--region us-east-1 \
+--function-name LambdaFunctionOverHttps  \
+--zip-file fileb:///Users/enamba/Projects/IoT/lambda/LambdaFunctionOverHttps/LambdaFunctionOverHttps.zip \
+--role arn:aws:iam::266164696056:role/lambda-gateway-execution-role  \
+--handler LambdaFunctionOverHttps.handler \
+--runtime nodejs4.3
+
+{
+    "CodeSha256": "dUYT6MDeRfeZlLubmSWvgAnAg3A6GIEW8p1foUiqEg4=", 
+    "FunctionName": "LambdaFunctionOverHttps", 
+    "CodeSize": 694, 
+    "MemorySize": 128, 
+    "FunctionArn": "arn:aws:lambda:us-east-1:266164696056:function:LambdaFunctionOverHttps", 
+    "Version": "$LATEST", 
+    "Role": "arn:aws:iam::266164696056:role/lambda-gateway-execution-role", 
+    "Timeout": 3, 
+    "LastModified": "2016-12-11T20:53:44.860+0000", 
+    "Handler": "LambdaFunctionOverHttps.handler", 
+    "Runtime": "nodejs4.3", 
+    "Description": ""
+}
+
+
+
+{
+    "operation": "read",
+    "tableName": "LambdaFunctionOverHttps",
+    "payload": {
+        "Key": {
+          "domain": "namba.eduardo.cc"
+          "ipdynamic": "10.1.1.1"
+        }
+    }
+}
+
+aws lambda  invoke \
+--invocation-type Event \
+--function-name LambdaFunctionOverHttps \
+--region us-east-1 \
+--payload file:///Users/enamba/Projects/IoT/lambda/LambdaFunctionOverHttps/read_dynamodb.txt \
+outputfile.txt
+
+aws apigateway create-rest-api \
+--name DynamoDBOperations
+
+{
+    "name": "DynamoDBOperations", 
+    "id": "liuc1wt971", 
+    "createdDate": 1481491973
+}
+
+aws apigateway get-resources \
+--rest-api-id liuc1wt971
+{
+    "items": [
+        {
+            "path": "/", 
+            "id": "ft88qzwfek"
+        }
+    ]
+}
+
+
+aws apigateway create-resource \
+--rest-api-id liuc1wt971 \
+--parent-id ft88qzwfek \
+--path-part DynamoDBManager
+
+{
+    "path": "/DynamoDBManager", 
+    "pathPart": "DynamoDBManager", 
+    "id": "mv1y9q", 
+    "parentId": "ft88qzwfek"
+}
+
+aws apigateway put-method \
+--rest-api-id liuc1wt971 \
+--resource-id mv1y9q \
+--http-method POST \
+--authorization-type NONE
+
+{
+    "apiKeyRequired": false, 
+    "httpMethod": "POST", 
+    "authorizationType": "NONE"
+}
+
+aws apigateway put-integration \
+--rest-api-id liuc1wt971 \
+--resource-id mv1y9q \
+--http-method POST \
+--type AWS \
+--integration-http-method POST \
+--uri arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:266164696056:function:LambdaFunctionOverHttps/invocations
+
+
+{
+    "httpMethod": "POST", 
+    "passthroughBehavior": "WHEN_NO_MATCH", 
+    "cacheKeyParameters": [], 
+    "type": "AWS", 
+    "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:266164696056:function:LambdaFunctionOverHttps/invocations", 
+    "cacheNamespace": "mv1y9q"
+}
+
+aws apigateway put-method-response \
+--rest-api-id liuc1wt971 \
+--resource-id mv1y9q \
+--http-method POST \
+--status-code 200 \
+--response-models "{\"application/json\": \"Empty\"}"
+
+{
+    "responseModels": {
+        "application/json": "Empty"
+    }, 
+    "statusCode": "200"
+}
+
+aws apigateway put-integration-response \
+--rest-api-id liuc1wt971 \
+--resource-id mv1y9q \
+--http-method POST \
+--status-code 200 \
+--response-templates "{\"application/json\": \"\"}"
+
+{
+    "statusCode": "200", 
+    "responseTemplates": {
+        "application/json": null
+    }
+}
+
+aws apigateway create-deployment \
+--rest-api-id liuc1wt971 \
+--stage-name prod
+
+{
+    "id": "mm784b", 
+    "createdDate": 1481493935
+}
+
+aws lambda add-permission \
+--function-name LambdaFunctionOverHttps \
+--statement-id apigateway-test-2 \
+--action lambda:InvokeFunction \
+--principal apigateway.amazonaws.com \
+--source-arn "arn:aws:execute-api:us-east-1:266164696056:liuc1wt971/*/POST/DynamoDBManager"
+
+{
+    "Statement": "{\"Sid\":\"apigateway-test-2\",\"Resource\":\"arn:aws:lambda:us-east-1:266164696056:function:LambdaFunctionOverHttps\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"apigateway.amazonaws.com\"},\"Action\":[\"lambda:InvokeFunction\"],\"Condition\":{\"ArnLike\":{\"AWS:SourceArn\":\"arn:aws:execute-api:us-east-1:266164696056:liuc1wt971/*/POST/DynamoDBManager\"}}}"
+}
+
+aws lambda add-permission \
+--function-name LambdaFunctionOverHttps \
+--statement-id apigateway-prod-2 \
+--action lambda:InvokeFunction \
+--principal apigateway.amazonaws.com \
+--source-arn "arn:aws:execute-api:us-east-1:266164696056:liuc1wt971/prod/POST/DynamoDBManager"
+
+{
+    "Statement": "{\"Sid\":\"apigateway-prod-2\",\"Resource\":\"arn:aws:lambda:us-east-1:266164696056:function:LambdaFunctionOverHttps\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"apigateway.amazonaws.com\"},\"Action\":[\"lambda:InvokeFunction\"],\"Condition\":{\"ArnLike\":{\"AWS:SourceArn\":\"arn:aws:execute-api:us-east-1:266164696056:liuc1wt971/prod/POST/DynamoDBManager\"}}}"
+}
+
+aws apigateway test-invoke-method \
+--rest-api-id liuc1wt971 \
+--resource-id mv1y9q \
+--http-method POST \
+--path-with-query-string "" \
+--body "{\"operation\":\"echo\",\"payload\":{\"somekey1\":\"somevalue1\",\"somekey2\":\"somevalue2\"}}"
+
+
+
+curl -X POST -F file=@/Users/enamba/Projects/IoT/lambda/LambdaFunctionOverHttps/post.txt  https://liuc1wt971.execute-api.us-east-1.amazonaws.com/prod/DynamoDBManager
+
+{
+    "operation": "read",
+    "tableName": "LambdaFunctionOverHttps",
+    "payload": {
+        "Key": {
+          "domain": "namba.eduardo.cc"
+          "ipdynamic": "10.1.1.1"
+        }
+    }
+}
+
+curl -X POST -d '{"operation": "read","tableName": "LambdaFunctionOverHttps","payload": {"Key": {"domain":"namba.eduardo.cc","ipdynamic": "10.1.1.1"}}}'  https://liuc1wt971.execute-api.us-east-1.amazonaws.com/prod/DynamoDBManager
+
+curl -s -X POST -d '{"operation": "create","tableName": "LambdaFunctionOverHttps","payload": {"Item": {"domain":"namba.eduardo.cc","ipdynamic": "$external","dateupdate":$datenow}}}'  https://liuc1wt971.execute-api.us-east-1.amazonaws.com/prod/DynamoDBManager)
+
+
